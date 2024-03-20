@@ -1,9 +1,14 @@
+import fs from "fs";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const predefinedUsers = [
-  { id: "1", username: "admin", password: "password123" },
-  { id: "2", username: "admin2", password: "password123" },
-];
+interface User {
+  id: string;
+  username: string;
+  password: string;
+}
+
+let rawData = fs.readFileSync("users.json").toString();
+let predefinedUsers = JSON.parse(rawData) as User[];
 
 export const authOptions = {
   pages: {

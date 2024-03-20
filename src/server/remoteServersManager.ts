@@ -81,6 +81,9 @@ const sendHttpRequest = async (
 
 export class RemoteServersManager {
   public constructor(io: Server) {
+
+    console.log(`RemoteServersManager created (memory usage: ${process.memoryUsage().rss}) `);
+
     this.remoteServers = [];
     this.loadRemoteServers();
     this.io = io;
@@ -195,6 +198,9 @@ export class RemoteServersManager {
         console.error("Error loading remote servers: unknown error");
       }
     }
+
+    console.log("Remote servers loaded");
+    console.log(this.remoteServers);
   };
 
   private remoteServers: RemoteServer[];
