@@ -82,8 +82,6 @@ const sendHttpRequest = async (
 export class RemoteServersManager {
   public constructor(io: Server) {
 
-    console.log(`RemoteServersManager created (memory usage: ${process.memoryUsage().rss}) `);
-
     this.remoteServers = [];
     this.loadRemoteServers();
     this.io = io;

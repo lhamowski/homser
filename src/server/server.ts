@@ -31,6 +31,4 @@ app.prepare().then(() => {
   httpServer.listen(port, host, () => {
     console.log(`Server is running on http://${host}:${port}`);
   });
-
-  console.log(`(memory usage: ${process.memoryUsage().rss}) `);
 });
