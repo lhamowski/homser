@@ -101,6 +101,10 @@ export class RemoteServersManager {
         if (server) {
           server.metrics = { cpuUsage, cpuTemp, ramUsage };
 
+          if (server.status === RemoteServerStatus.Stopping) {
+            return;
+          }
+
           if (server.status !== RemoteServerStatus.Started) {
             this.setRemoteServerStatus(id, RemoteServerStatus.Started);
           }
@@ -141,6 +145,9 @@ export class RemoteServersManager {
   public setRemoteServerStatus = (id: number, status: RemoteServerStatus) => {
     const server = this.remoteServers.find((server) => server.id === id);
     if (server) {
+      if (server.status === status) {
+        return;
+      }
       server.status = status;
       this.onRemoteServerStatusChanged(id, status);
     }
@@ -153,16 +160,31 @@ export class RemoteServersManager {
     console.log(`Server ${id} status changed to ${status}`);
     this.io.emit(RemoteServerEvent.StatusChanged, { id, status });
 
-    if (status === RemoteServerStatus.Starting) {
-      const startingTimeout = 20000;
-      this.timers[id] = setTimeout(() => {
-        this.setRemoteServerStatus(id, RemoteServerStatus.Stopped);
-      }, startingTimeout);
-    } else if (status === RemoteServerStatus.Started) {
-      if (this.timers[id]) {
-        clearTimeout(this.timers[id]);
-        delete this.timers[id];
-      }
+    switch (status) {
+      case RemoteServerStatus.Starting:
+        const startingTimeout = 40000;
+        this.timers[id] = setTimeout(() => {
+          this.setRemoteServerStatus(id, RemoteServerStatus.Stopped);
+        }, startingTimeout);
+        break;
+      case RemoteServerStatus.Started:
+        if (this.timers[id]) {
+          clearTimeout(this.timers[id]);
+          delete this.timers[id];
+        }
+        break;
+      case RemoteServerStatus.Stopping:
+        const stoppingTimeout = 20000;
+        this.timers[id] = setTimeout(() => {
+          this.setRemoteServerStatus(id, RemoteServerStatus.Started);
+        }, stoppingTimeout);
+        break;
+      case RemoteServerStatus.Stopped:
+        if (this.timers[id]) {
+          clearTimeout(this.timers[id]);
+          delete this.timers[id];
+        }
+        break;
     }
   };
 
