@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development ts-node src/server/server.ts",
     "build": "next build",
-    "start": "cross-env NODE_ENV=production ts-node src/server/server.ts",
+    "start": "cross-env NODE_ENV=production ts-node --transpile-only src/server/server.ts",
     "lint": "next lint"
   },
   "dependencies": {
@@ -20,11 +20,12 @@
     "@types/express": "^4.17.21",
     "axios": "^1.6.7",
     "express": "^4.18.3",
-    "next": "14.1.0",
+    "next": "14.1.4",
     "next-auth": "^4.24.6",
     "react": "^18",
     "react-dom": "^18",
     "react-redux": "^9.1.0",
+    "sharp": "^0.33.2",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "ts-node": "^10.9.2"
