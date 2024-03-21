@@ -99,14 +99,6 @@ export class RemoteServersManager {
         if (server) {
           server.metrics = { cpuUsage, cpuTemp, ramUsage };
 
-          if (server.status === RemoteServerStatus.Stopping) {
-            return;
-          }
-
-          if (server.status !== RemoteServerStatus.Started) {
-            this.setRemoteServerStatus(id, RemoteServerStatus.Started);
-          }
-
           if (this.timers[id]) {
             clearTimeout(this.timers[id]);
             delete this.timers[id];
@@ -116,6 +108,14 @@ export class RemoteServersManager {
             this.setRemoteServerStatus(id, RemoteServerStatus.Stopped);
             console.log(`Timeout for server ${id} reached`);
           }, offlineTimeout);
+
+          if (server.status === RemoteServerStatus.Stopping) {
+            return;
+          }
+
+          if (server.status !== RemoteServerStatus.Started) {
+            this.setRemoteServerStatus(id, RemoteServerStatus.Started);
+          }
 
           this.io.emit(RemoteServerEvent.RemoteServerMetrics, {
             id,
@@ -161,6 +161,10 @@ export class RemoteServersManager {
     switch (status) {
       case RemoteServerStatus.Starting:
         const startingTimeout = 40000;
+        if (this.timers[id]) {
+          clearTimeout(this.timers[id]);
+          delete this.timers[id];
+        }
         this.timers[id] = setTimeout(() => {
           this.setRemoteServerStatus(id, RemoteServerStatus.Stopped);
         }, startingTimeout);
@@ -172,10 +176,6 @@ export class RemoteServersManager {
         }
         break;
       case RemoteServerStatus.Stopping:
-        const stoppingTimeout = 20000;
-        this.timers[id] = setTimeout(() => {
-          this.setRemoteServerStatus(id, RemoteServerStatus.Started);
-        }, stoppingTimeout);
         break;
       case RemoteServerStatus.Stopped:
         if (this.timers[id]) {
